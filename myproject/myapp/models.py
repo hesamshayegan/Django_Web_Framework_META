@@ -6,10 +6,10 @@ class MenuCategory(models.Model):
     menu_category_name = models.CharField(max_length=200)
 
 # Menu
-class Menu(models.Model):
-    menu_item = models.CharField(max_length=200)
-    price = models.IntegerField(null=False)
-    category_id = models.ForeignKey(MenuCategory, on_delete = models.PROTECT, default=None)
+# class Menu(models.Model):
+#     menu_item = models.CharField(max_length=200)
+#     price = models.IntegerField(null=False)
+#     category_id = models.ForeignKey(MenuCategory, on_delete = models.PROTECT, default=None)
 
 
 # Drinks Category
@@ -55,4 +55,19 @@ class Person(models.Model):
     # def __str__(self): 
     #     return f"{self.last_name}, {self.first_name}"
 
+
+class Employees(models.Model):
+    first_name = models.CharField(max_length=200)    
+    last_name = models.CharField(max_length=200)
+    role = models.CharField(max_length=100)
+    shift = models.IntegerField()
+
+    def __str__(self) -> str:
+        return self.first_name
     
+class Menu(models.Model):
+    name = models.CharField(max_length=200)
+    price = models.IntegerField()
+
+    def __str__(self):
+        return self.name
