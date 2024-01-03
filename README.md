@@ -7,10 +7,10 @@ The Little Lemon Restaurant, is a robust Django backend designed to power the Li
 ### Menu Item
 Discover the details of each menu item through dedicated pages dynamically generated from the database. Get a closer look at the flavors, prices, and descriptions of your favorite dishes.
 
-**Name**: Identify each dish by its unique name.
-**Price**: Know the cost of each menu item.
-**Description**: Delve into the flavors with a detailed description.
-**Image**: Visualize the culinary delights through mouth-watering images.
+**Name**: Identify each dish by its unique name.<br>
+**Price**: Know the cost of each menu item.<br>
+**Description**: Delve into the flavors with a detailed description.<br>
+**Image**: Visualize the culinary delights through mouth-watering images.<br>
 
 
 ## Installation
