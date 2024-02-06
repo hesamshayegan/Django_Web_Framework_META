@@ -5,6 +5,14 @@ from rest_framework.response import Response
 from .models import MenuItem
 from .serializers import MenuItemSerializer
 
+# TemplateHTMLRenderer
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.decorators import renderer_classes
+
+# StaticHTMLRenderer
+from rest_framework.renderers import StaticHTMLRenderer
+
+
 # Create your views here.
 @api_view(['GET','POST'])
 def menu_items(request):
@@ -24,3 +32,20 @@ def single_item(request, id):
     serialized_item = MenuItemSerializer(item)
     return Response(serialized_item.data)
 
+
+
+
+# TemplateHTMLRenderer
+@api_view() 
+@renderer_classes ([TemplateHTMLRenderer])
+def menu(request):
+    items = MenuItem.objects.select_related('category').all()
+    serialized_item = MenuItemSerializer(items, many=True)
+    return Response({'data':serialized_item.data}, template_name='menu-item.html')
+
+# StaticHTMLRenderer
+@api_view(['GET'])
+@renderer_classes([StaticHTMLRenderer])
+def welcome(request):
+    data = '<html><body><h1>Welcome To Little Lemon API Project</h1></body></html>'
+    return Response(data)
