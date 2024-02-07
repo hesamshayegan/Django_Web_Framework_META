@@ -12,12 +12,46 @@ from rest_framework.decorators import renderer_classes
 # StaticHTMLRenderer
 from rest_framework.renderers import StaticHTMLRenderer
 
-
+# function baed views with @api_view decorator
 # Create your views here.
 @api_view(['GET','POST'])
 def menu_items(request):
     if request.method == 'GET':
         items = MenuItem.objects.select_related('category').all()
+        # to filter queries
+        category_name = request.query_params.get('category')
+        to_price = request.query_params.get('to_price')
+        search = request.query_params.get('search')
+        ordering = request.query_params.get('ordering')
+        if category_name:
+            # I need to use a double underscore between the model and 
+            # the field to filter a linked model like a category inside the menu item
+            items = items.filter(category__title=category_name)
+        if to_price:
+            # lte (Less than or equal to) is a conditional operator or fields lookup
+            # items = items.filter(price__lte=to_price)
+
+            # to filter for exact price
+            items = items.filter(price=to_price)
+        # to order
+        if ordering:
+            # items = items.order_by(ordering)
+            # if I have multiple fields to order
+            ordering_fields = ordering.split(",")
+            items = items.order_by(*ordering_fields)
+        # to search
+            if search:
+                items = items.filter(title__startswith=search)
+                # case insensitive
+                # items = items.filter(title__istartswith=search)
+
+                # to search if characters are anywhere in the title
+                # items = items.filter(title__contains=search)
+                # case insensitive
+                # items = items.filter(title__icontains=search)
+            
+     
+        # serialization
         serialized_item = MenuItemSerializer(items, many=True)
         return Response(serialized_item.data)
     if request.method == 'POST':
@@ -26,7 +60,7 @@ def menu_items(request):
         serialized_item.save()
         return Response(serialized_item, status.HTTP_201_CREATED)
 
-@api_view()
+@api_view(['GET'])
 def single_item(request, id):
     item = get_object_or_404(MenuItem, pk=id)
     serialized_item = MenuItemSerializer(item)
