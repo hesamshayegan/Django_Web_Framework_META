@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import MenuItem
 from .serializers import MenuItemSerializer
+from django.core.paginator import Paginator, EmptyPage
 
 # TemplateHTMLRenderer
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -23,6 +24,8 @@ def menu_items(request):
         to_price = request.query_params.get('to_price')
         search = request.query_params.get('search')
         ordering = request.query_params.get('ordering')
+        perpage = request.query_params.get('perpage', default=2)
+        page = request.query_params.get('page', default=1)
         if category_name:
             # I need to use a double underscore between the model and 
             # the field to filter a linked model like a category inside the menu item
@@ -50,21 +53,28 @@ def menu_items(request):
                 # case insensitive
                 # items = items.filter(title__icontains=search)
             
-     
+        # pagination
+        paginator = Paginator(items, per_page=perpage)
+        try:
+            items = paginator.page(number=page)
+        except EmptyPage:
+            items = []
+
         # serialization
         serialized_item = MenuItemSerializer(items, many=True)
         return Response(serialized_item.data)
     if request.method == 'POST':
         serialized_item = MenuItemSerializer(data=request.data)
-        serialized_item.is_valid(raise_exception=True)
-        serialized_item.save()
-        return Response(serialized_item, status.HTTP_201_CREATED)
+        if serialized_item.is_valid(raise_exception=True):
+            serialized_item.save()
+            return Response(serialized_item.data, status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 def single_item(request, id):
     item = get_object_or_404(MenuItem, pk=id)
     serialized_item = MenuItemSerializer(item)
     return Response(serialized_item.data)
+
 
 
 

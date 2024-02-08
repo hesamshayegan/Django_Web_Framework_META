@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import MenuItem, Category
 from decimal import Decimal
+from rest_framework.validators import UniqueValidator
+import bleach
 
 
 # class MenuItemSerializer(serializers.Serialize):
@@ -29,9 +31,33 @@ class MenuItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.IntegerField(write_only=True)
 
+    def validate(self, attrs):
+        # sanitize data method 2
+        attrs['title'] = bleach.clean(attrs['title'])
+        if(attrs['price']<2):
+            raise serializers.ValidationError('Price should not be less than 2.0')
+        if(attrs['inventory']<0):
+            raise serializers.ValidationError('Stock cannot be negative')
+        return super().validate(attrs)
+
+    # sanitize data
+    # def validate_title(self, value):
+    #     return bleach.clean(value)
+
     class Meta:
         model = MenuItem
         fields = ['id', 'title', 'price', 'stock', 'price_after_tax', 'category', 'category_id']
+
+        extra_kwargs = {
+            'title': {
+                'validators': [
+                    UniqueValidator(
+                        queryset=MenuItem.objects.all()
+                    )
+                ]
+            }       
+        }
+        
 
     def calculate_tax(self, product:MenuItem):
         return product.price * Decimal(1.1)
